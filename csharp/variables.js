@@ -1,3 +1,8 @@
+/* Modified to work with Blockly 2.20190722.1 
+27-Sep-2019
+Anil Nair
+anilnair.au@gmail.com
+*/
 'use strict';
 
 goog.provide('Blockly.CSharp.variables');
