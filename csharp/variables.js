@@ -1,19 +1,29 @@
 'use strict';
 
-Blockly.CSharp.variables = {};
+goog.provide('Blockly.CSharp.variables');
 
-Blockly.CSharp.variables_get = function() {
-  // Variable getter.
-  var code = Blockly.CSharp.variableDB_.getName(this.getTitleValue('VAR'),
-      Blockly.Variables.NAME_TYPE);
-  return [code, Blockly.CSharp.ORDER_ATOMIC];
+goog.require('Blockly.CSharp');
+
+
+  
+  Blockly.CSharp['variables_get'] = function(block) {
+    // Variable getter.
+    var code = Blockly.CSharp.variableDB_.getName(block.getFieldValue('VAR'),
+        Blockly.Variables.NAME_TYPE);
+    return [code, Blockly.CSharp.ORDER_ATOMIC];
+    
 };
 
-Blockly.CSharp.variables_set = function() {
-  // Variable setter.
-  var argument0 = Blockly.CSharp.valueToCode(this, 'VALUE',
-      Blockly.CSharp.ORDER_ASSIGNMENT) || 'null';
-  var varName = Blockly.CSharp.variableDB_.getName(
-      this.getTitleValue('VAR'), Blockly.Variables.NAME_TYPE);
-  return varName + ' = ' + argument0 + ';\n';
+
+  
+  
+  Blockly.CSharp['variables_set'] = function(block) {
+    // Variable setter.
+    var argument0 = Blockly.CSharp.valueToCode(block, 'VALUE',
+            Blockly.CSharp.ORDER_ASSIGNMENT) || '0';//can be null instead of 0
+    var varName = Blockly.CSharp.variableDB_.getName(
+        block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    return varName + ' = ' + argument0 + ';\n';
+    
+    
 };

@@ -3,6 +3,7 @@
 goog.provide('Blockly.CSharp');
 
 goog.require('Blockly.Generator');
+goog.require('Blockly.utils.string');
 
 Blockly.CSharp = new Blockly.Generator('CSharp');
 
@@ -48,10 +49,11 @@ Blockly.CSharp.ORDER_NONE = 99;          // (...)
  */
 Blockly.CSharp.INFINITE_LOOP_TRAP = null;
 
-Blockly.CSharp.init = function() {
-  Blockly.CSharp.definitions_ = {};
+Blockly.CSharp.init = function(workspace) {
+  Blockly.CSharp.definitions_ = Object.create(null);
 
-  if (Blockly.Variables) {
+  Blockly.CSharp.functionNames_ = Object.create(null);
+
     if (!Blockly.CSharp.variableDB_) {
       Blockly.CSharp.variableDB_ =
           new Blockly.Names(Blockly.CSharp.RESERVED_WORDS_);
@@ -59,15 +61,28 @@ Blockly.CSharp.init = function() {
       Blockly.CSharp.variableDB_.reset();
     }
 
+  Blockly.CSharp.variableDB_.setVariableMap(workspace.getVariableMap());
     var defvars = [];
-    var variables = Blockly.Variables.allVariables();
-    for (var x = 0; x < variables.length; x++) {
-      defvars[x] = 'dynamic ' +
-          Blockly.CSharp.variableDB_.getName(variables[x],
-          Blockly.Variables.NAME_TYPE) + ';';
-    }
-    Blockly.CSharp.definitions_['variables'] = defvars.join('\n');
+    
+  var devVarList = Blockly.Variables.allDeveloperVariables(workspace);
+    for (var i = 0; i < devVarList.length; i++) {
+    defvars.push('dynamic '+ Blockly.CSharp.variableDB_.getName(devVarList[i],
+         Blockly.Names.DEVELOPER_VARIABLE_TYPE) + ';');
   }
+  
+  
+  
+  
+    // Add user variables, but only ones that are being used.
+  var variables = Blockly.Variables.allUsedVarModels(workspace);
+  for (var i = 0, variable; variable = variables[i]; i++) {
+    defvars.push('dynamic ' + Blockly.CSharp.variableDB_.getName(variable.getId(),
+         Blockly.Variables.NAME_TYPE) + ';');
+  }
+  
+
+    Blockly.CSharp.definitions_['variables'] = defvars.join('\n\n');
+  
 };
 
 /* Prepend the generated code with the variable definitions. */
@@ -76,6 +91,9 @@ Blockly.CSharp.finish = function(code) {
   for (var name in Blockly.CSharp.definitions_) {
     definitions.push(Blockly.CSharp.definitions_[name]);
   }
+  delete Blockly.CSharp.definitions_;
+  delete Blockly.CSharp.functionNames_;
+  Blockly.CSharp.variableDB_.reset();
   return definitions.join('\n\n') + '\n\n\n' + code;
 };
 
